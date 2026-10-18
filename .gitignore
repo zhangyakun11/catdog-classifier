@@ -1,0 +1,49 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ===== 数据：原始图片不入 Git，由 DVC 管理 =====
+data/raw/
+data/processed/
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.gif
+!data/**/*.dvc
+!ml/**/*.md
+
+# ===== DVC =====
+.dvc/cache/
+.dvc/tmp/
+.dvc/updater.lock
+
+# ===== MLflow =====
+mlruns/
+mlartifacts/
+
+# ===== 模型制品（由 MLflow 管理，不入 Git）=====
+*.joblib
+*.pkl
+*.pt
+*.pth
+*.onnx
+
+# ===== 环境变量（CI 里用 GitHub Secrets 生成）=====
+.env
+.env.*
+!.env.example
+
+# ===== IDE / OS =====
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ===== 测试/日志 =====
+.pytest_cache/
+*.log
