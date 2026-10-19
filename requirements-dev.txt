@@ -1,5 +1,6 @@
 # 开发/测试依赖（CI 与本地测试用）
-# 注：不单独安装 http2——新版 starlette 提示的该包在 PyPI 不存在，
-# 已在 requirements.txt 固定 fastapi 版本规避
+# 注：starlette 的 TestClient 需要 httpx2 或 httpx（错误信息里的 "http2" 是 starlette 的笔误，
+# 该包在 PyPI 不存在）；本地用 httpx 验证通过
 -r requirements.txt
 pytest
+httpx
