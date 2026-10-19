@@ -5,3 +5,8 @@ line-length = 120
 [tool.ruff.lint]
 # FastAPI 的 File()/Query()/Body() 写在参数默认值是框架要求的写法
 ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+# app/main.py 需要先 sys.path 注入 ml 目录才能导入共享的 model.py，
+# 因此 import 语句必然出现在文件顶部语句之后
+"app/main.py" = ["E402"]
