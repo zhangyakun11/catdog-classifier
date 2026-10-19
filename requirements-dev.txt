@@ -1,5 +1,5 @@
 # 开发/测试依赖（CI 与本地测试用）
-# 注意：Starlette 新版 TestClient 需要 http2 包
+# 注：不单独安装 http2——新版 starlette 提示的该包在 PyPI 不存在，
+# 已在 requirements.txt 固定 fastapi 版本规避
 -r requirements.txt
 pytest
-http2

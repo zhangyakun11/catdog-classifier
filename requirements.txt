@@ -1,6 +1,8 @@
 # 应用运行时依赖（推理 API）
-# torch / torchvision 因需 CPU 版，由 Dockerfile 与 CI 中单独指定 index-url 安装
-fastapi
+# 固定 fastapi 版本：新版 starlette 的 TestClient 存在 http2 包名问题（PyPI 无此包），
+# 固定到本地验证通过的版本，保证 CI 与本地环境一致（可复现）
+# torch / torchvision 需 CPU 版，由 Dockerfile 与 CI 中单独指定 index-url 安装
+fastapi==0.143.0
 uvicorn
 python-multipart
 pillow
