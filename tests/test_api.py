@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """FastAPI 推理接口的单元测试（pytest）。
 
 覆盖场景（含边界情况）：

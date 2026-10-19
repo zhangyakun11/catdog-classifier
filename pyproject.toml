@@ -1,0 +1,7 @@
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+
+[tool.ruff.lint]
+# FastAPI 的 File()/Query()/Body() 写在参数默认值是框架要求的写法
+ignore = ["B008"]

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """猫狗二分类推理 API（FastAPI）。
 
 启动服务：
@@ -20,10 +19,9 @@ sys.path.insert(0, str(PROJECT_ROOT / "ml"))  # 让推理代码能 import model.
 
 import torch
 from fastapi import FastAPI, File, HTTPException, UploadFile
-from PIL import Image
-from torchvision import transforms
-
 from model import CatDogCNN  # 与训练共用同一模型定义
+from PIL import Image, UnidentifiedImageError
+from torchvision import transforms
 
 CLASSES = ["cat", "dog"]
 MODEL_PATH = PROJECT_ROOT / "ml" / "artifacts" / "model_improved_processed.pt"
@@ -71,7 +69,7 @@ async def predict(file: UploadFile = File(...)):
 
     try:
         tensor = _to_tensor(image_bytes).to(DEVICE)
-    except Exception:
+    except (UnidentifiedImageError, OSError, ValueError):
         raise HTTPException(status_code=400, detail="不是有效的图片文件")
 
     with torch.no_grad():

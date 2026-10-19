@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """猫狗二分类 CNN 模型定义。
 
 两种结构：
@@ -8,7 +7,7 @@
 模型定义独立成模块，训练脚本 (train.py) 和 API 服务 (app/main.py) 共用，
 保证训练和推理用的是同一个模型结构。
 """
-import torch.nn as nn
+from torch import nn
 
 
 class CatDogCNN(nn.Module):

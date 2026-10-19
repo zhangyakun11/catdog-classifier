@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """训练脚本：baseline 与 improved 两个实验，全部记录到 MLflow。
 
 用法（在项目根目录运行）：
@@ -20,13 +19,14 @@ import sys
 from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")  # 无界面后端，避免 GUI 依赖
 import matplotlib.pyplot as plt
 import mlflow
 import torch
-import torch.nn as nn
 from PIL import Image
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
+from torch import nn
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
 
@@ -45,7 +45,7 @@ def git_commit_sha() -> str:
         return subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=PROJECT_ROOT, text=True
         ).strip()
-    except Exception:
+    except Exception:  # noqa: BLE001 - git 不可用时回退为 unknown，不影响训练
         return "unknown"
 
 
