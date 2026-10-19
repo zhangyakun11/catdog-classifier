@@ -1,0 +1,96 @@
+# CI/CD 流水线（GitHub Actions）
+#
+# 触发规则（对应分支策略）：
+#   - pull_request 到 dev / staging / main：跑 测试 + lint + 静态分析 + 构建镜像
+#   - push 到 staging：质量关卡通过后，构建镜像并发布为 ghcr.io/...:staging
+#   - push 到 main：质量关卡通过后，构建镜像并发布为 ghcr.io/...:latest（生产）
+#
+# 配合 GitHub 分支保护："Require status checks" 勾选本工作流，
+# 使 CI 失败时 PR 无法合并。
+
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [dev, staging, main]
+  push:
+    branches: [staging, main]
+
+permissions:
+  contents: read
+  packages: write   # 允许推送到 GHCR（GitHub Container Registry）
+
+jobs:
+  # ============ 质量关卡：所有分支的 PR / push 都跑 ============
+  quality:
+    name: Test + Lint + Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+          pip install ruff dvc[azure]
+
+      # 测试需要 data/processed 下的图片 → 用 DVC 从 Azure 远程拉取
+      # （数据版本管理在 CI 中的价值：任何人/任何机器都能复现同一份数据）
+      - name: Pull data from DVC remote (Azure)
+        run: |
+          dvc remote add --local myazure azure://dvc
+          dvc remote modify --local myazure connection_string "${{ secrets.AZURE_CONNECTION_STRING }}"
+          dvc pull
+        env:
+          AZURE_CONNECTION_STRING: ${{ secrets.AZURE_CONNECTION_STRING }}
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Static analysis (compile check)
+        run: |
+          python -m py_compile app/main.py ml/model.py ml/train.py ml/data_pipeline.py
+          ruff check . --select F,E
+
+      - name: Run tests
+        run: python -m pytest tests/ -v
+
+      - name: Build Docker image
+        run: docker build -t catdog-classifier:${{ github.sha }} .
+
+  # ============ 自动化部署：仅 push（staging/main）时执行 ============
+  deploy:
+    name: Deploy image to GHCR
+    if: github.event_name == 'push'
+    needs: quality          # 质量关卡未过 → 不部署
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build, push and smoke test
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then TAG=latest; else TAG=staging; fi
+          echo "Deploying tag: $TAG"
+          docker build -t ghcr.io/${{ github.repository }}:$TAG .
+          docker push ghcr.io/${{ github.repository }}:$TAG
+          # 冒烟测试：用刚发布的镜像启动容器并请求健康检查
+          docker run --rm -d --name smoke -p 8000:8000 ghcr.io/${{ github.repository }}:$TAG
+          sleep 20
+          curl --fail --silent http://127.0.0.1:8000/health || { docker rm -f smoke; exit 1; }
+          echo "Smoke test passed"
+          docker rm -f smoke

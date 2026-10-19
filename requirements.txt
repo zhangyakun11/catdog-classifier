@@ -1,0 +1,6 @@
+# 应用运行时依赖（推理 API）
+# torch / torchvision 因需 CPU 版，由 Dockerfile 与 CI 中单独指定 index-url 安装
+fastapi
+uvicorn
+python-multipart
+pillow

@@ -1,0 +1,27 @@
+# Docker 构建上下文排除项：不把数据/训练产物/版本库带入镜像
+.git
+.gitignore
+data/
+mlruns/
+mlflow.db
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/
+.dvc/
+*.dvc
+.github/
+ml/artifacts/model_baseline_processed.pt
+ml/artifacts/confusion_*.png
+ml/README_data.md
+ml/README_experiments.md
+ml/PROVENANCE.md
+ml/registry/
+ml/train.py
+ml/data_pipeline.py
+README.md
+DEPLOYMENT.md
+Dockerfile
+.dockerignore
+azure_conn_string.txt
+*.log
