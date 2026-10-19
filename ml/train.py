@@ -16,6 +16,7 @@
 """
 import argparse
 import subprocess
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -29,6 +30,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # 保证能 import model.py
 from model import CatDogCNN
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -117,6 +119,9 @@ def evaluate(model, loader, device):
 
 
 def save_confusion_matrix(labels, preds, path: Path):
+    # 让 matplotlib 支持中文标签（Windows 下使用微软雅黑/黑体）
+    plt.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei", "DejaVu Sans"]
+    plt.rcParams["axes.unicode_minus"] = False
     cm = confusion_matrix(labels, preds)
     fig, ax = plt.subplots(figsize=(4, 3.5))
     im = ax.imshow(cm, cmap="Blues")
