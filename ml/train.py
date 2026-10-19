@@ -54,7 +54,7 @@ def dvc_md5(data_version: str) -> str:
     dvc_file = DATA_DIR / f"{data_version}.dvc"
     if dvc_file.exists():
         for line in dvc_file.read_text(encoding="utf-8").splitlines():
-            line = line.strip()
+            line = line.strip().lstrip("- ")  # 兼容 "- md5: xxx" 的列表项格式
             if line.startswith("md5:"):
                 return line.split(":", 1)[1].strip()
     return "unknown"
