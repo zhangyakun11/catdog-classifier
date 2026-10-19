@@ -1,0 +1,5 @@
+# 开发/测试依赖（CI 与本地测试用）
+# 注意：Starlette 新版 TestClient 需要 http2 包
+-r requirements.txt
+pytest
+http2

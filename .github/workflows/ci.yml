@@ -38,8 +38,8 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-          pip install -r requirements.txt
-          pip install ruff dvc[azure] pytest
+          pip install -r requirements-dev.txt
+          pip install ruff dvc[azure]
 
       # 测试需要 data/processed 下的图片 → 用 DVC 从 Azure 远程拉取
       # （数据版本管理在 CI 中的价值：任何人/任何机器都能复现同一份数据）
